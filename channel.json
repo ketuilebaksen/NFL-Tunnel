@@ -1,0 +1,33 @@
+{
+  "name": "NFL TUNNEL",
+  "outro_tag": "ONE STORY. ONE PLAYER. EVERY DAY.",
+  "editorial": "documentary",
+  "clip_offset": 79,
+  "team": "National Football League",
+  "nickname": "NFL",
+  "league": "NFL",
+  "sport": "football",
+  "venue": "",
+  "sources": "ESPN, NFL.com, Pro Football Talk, The Athletic, Pro Football Reference, Sports Illustrated",
+  "hashtags": "#NFL #NFLStories #Football",
+  "roster": [],
+  "roster_from_script": true,
+  "tts_engine": "eleven",
+  "eleven_voice_id": "S9UjcNYIwfBOtZiDnIQT",
+  "palette": {
+    "primary": [198, 168, 112],
+    "secondary": [13, 38, 76],
+    "ink": [8, 11, 20]
+  },
+  "hook_cut": 3.2,
+  "body_cut": 6.5,
+  "photo_zoom": 0.05,
+  "cutin_rate": 0.3,
+  "slowmo": 0.55,
+  "slowmo_every_sec": 18,
+  "overlay_kinds": ["lower3"],
+  "overlay_every_sec": 55,
+  "collage_every_sec": 75,
+  "bounce": false,
+  "thumb_engine": "none"
+}

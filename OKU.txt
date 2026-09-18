@@ -1,0 +1,105 @@
+NFL TUNNEL — TEK OYUNCU HIKAYELERI
+===================================
+
+Bu kanal digerlerinden FARKLI kuruldu. Diger kanallar bir takimin gunluk
+haberini anlatiyor; bu kanal her videoda tek bir oyuncunun hikayesini
+anlatiyor. Kurgu da ona gore: daha yavas, daha sinematik, daha az yazi.
+
+
+NE FARKLI
+---------
+1) OYUNCU FOTOGRAFLARI METINDEN BULUNUYOR
+   Diger kanallarda channel.json'da sabit bir kadro listesi var. Burada
+   olamaz — yarin baska oyuncu, baska takim. Bu yuzden sistem metni okuyup
+   icinde en cok gecen kisi adlarini kendi cikariyor ve Wikimedia'dan o
+   kisinin yuksek cozunurluklu fotografini indiriyor.
+
+   Render kaydinda su satiri goreceksin:
+     [photos] metinden cikan isimler: ['Jaxson Dart', 'Brian Burns']
+
+   Ilk isim videonun konusu olan oyuncudur — en cok gecen isim odur.
+   Senin photos release'ine yukledigin fotograflar varsa onlar oncelikli,
+   otomatik indirme sadece bosluk kalirsa devreye giriyor.
+
+2) SINEMATIK TEMPO
+   body_cut          6.5   kesimler uzun ve sakin (haber kanallarinda 3.4)
+   hook_cut          3.2   acilis bile aceleci degil
+   cutin_rate        0.30  ayni goruntuye daha sik yakin plan — ikinci kamera
+   slowmo            0.55  agir cekim daha yavas
+   slowmo_every_sec  18    ve daha sik geliyor (digerlerinde 30)
+   photo_zoom        0.05  fotograflarda kamera hareketi daha yumusak
+
+   Test render'inda kesimler 5.7 - 8.6 saniye arasi cikti. Haber
+   kanallarinda bu 2-4 saniye.
+
+3) DAHA AZ YAZI
+   collage_every_sec 75    kolaj yazilar arasi en az 75 saniye
+                           (Knicks'te 22 idi — yani ucte bir siklikta)
+   overlay_kinds     sadece "lower3"  — konusma balonu, cizgi roman,
+                           sohbet kutusu yok. Onlar eglenceli kanallar icin.
+   overlay_every_sec 55
+   bounce            false  zipir hareketler kapali
+
+   13 dakikalik bir videoda kabaca 10 kolaj yazi duser, 40 degil.
+
+
+ADIM 1 — YENI DEPO AC
+---------------------
+github.com -> + -> New repository
+  Repository name : nfl-tunnel
+  Public sec
+  Add a README    -> ISARETLEME !!!  (Rams'te bu yuzden hata aldik)
+  Create repository
+
+
+ADIM 2-3 — INDIR VE KOPYALA
+---------------------------
+Code -> Open with GitHub Desktop
+Zip'in icindekilerin hepsini (OKU.txt haric) klasore kopyala (Ctrl+C).
+
+Klasorde olmasi gerekenler:
+  .git  .github  assets  content  scripts  .gitignore  channel.json
+
+
+ADIM 4 — GONDER
+---------------
+GitHub Desktop -> Current repository: nfl-tunnel oldugundan EMIN OL
+Commit to main -> Push origin
+
+
+ADIM 5 — IZIN
+-------------
+Settings -> Actions -> General -> "Read and write permissions" -> Save
+
+
+ADIM 6 — STOK VIDEO HAVUZU
+--------------------------
+Releases -> Create a new release
+  Tag: broll   Title: broll
+  Kaliteli stok videolari surukle -> "Publish release"
+
+Her video icin yeni goruntu yukleyecegini soyledin — o zaman her seferinde
+YENI release acma, mevcut "broll" release'ine gir, "Edit release" deyip yeni
+dosyalari ekle. Sistem her render'da o release'i bastan indiriyor, yani en
+son ekledigin ne varsa onu gorur.
+
+Eski videolari silmek istersen ayni ekrandan silebilirsin; havuzu o videoya
+ozel tutmak istiyorsan once eskileri sil, sonra yenileri yukle.
+
+
+ADIM 7 — ILK VIDEO
+------------------
+Ses otomasyonunun kanal listesine nfl-tunnel'i ekle. Metni atinca program
+sesi uretip content/queue icine yazacak ve push edecek; render kendiliginden
+baslayacak.
+
+Elle yapacaksan: mp3'u content/queue icine at, dosya adi videonun basligi
+olsun, commit + push.
+
+
+AYAR DEGISTIRMEK
+----------------
+Hepsi channel.json'da, tek satir:
+  Daha da yavas istersen        body_cut 8.0
+  Kolaj yazi hic istemezsen     collage_every_sec 99999
+  Agir cekim cok geliyorsa      slowmo_every_sec 40
