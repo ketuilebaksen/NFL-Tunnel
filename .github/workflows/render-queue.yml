@@ -92,6 +92,8 @@ jobs:
           GH_TOKEN: ${{ secrets.ADMIN_PAT || github.token }}
           MEDIA_REPO: ${{ vars.MEDIA_REPO || github.repository }}
           MUSIC_REPO: ${{ vars.MUSIC_REPO || github.repository }}
+          VIDEO_TITLE: ${{ matrix.item.title }}
+          PLAYER_POOL_MIN: ${{ vars.PLAYER_POOL_MIN || '12' }}
         run: |
           mkdir -p work/broll work/music work/photos work/ambient work/motion
           # b-roll birden fazla release'e bolunuyor: GitHub bir release'e en fazla
@@ -99,12 +101,36 @@ jobs:
           # yeni stok eklemek icin bir sonraki numarayla release acmak yeterli.
           # Her etiket kendi alt klasorune iner, ayni adli dosyalar cakismaz
           # (assemble.py work/broll'u alt klasorleriyle birlikte tarar).
-          broll_tags=$(gh release list -R "$MEDIA_REPO" --limit 1000 --json tagName -q '.[].tagName' | grep -E '^broll[0-9]*$' || true)
-          [ -n "$broll_tags" ] || broll_tags="broll"
-          for tag in $broll_tags; do
-            mkdir -p "work/broll/$tag"
-            gh release download "$tag" -R "$MEDIA_REPO" -D "work/broll/$tag" || echo "no $tag release"
-          done
+          all_tags=$(gh release list -R "$MEDIA_REPO" --limit 1000 --json tagName -q '.[].tagName' || true)
+
+          # OYUNCUYA OZEL HAVUZ. Her video tek bir oyuncuyu anlatiyor; o oyuncu
+          # icin "oyuncu-<isim>" etiketli bir release varsa (oyuncu-patrick-mahomes)
+          # ve metin o oyuncudan bahsediyorsa video o havuzdan kurulur. Hangi
+          # oyuncu oldugunu metin ve basliktan pick_player_pool.py cikariyor.
+          use_general=1
+          player_tag=$(printf '%s\n' "$all_tags" | python3 scripts/pick_player_pool.py content/current/script.json "$VIDEO_TITLE" || true)
+          if [ -n "$player_tag" ]; then
+            mkdir -p work/broll/oyuncu
+            gh release download "$player_tag" -R "$MEDIA_REPO" -D work/broll/oyuncu || echo "$player_tag indirilemedi"
+            n=$(find work/broll/oyuncu -type f | wc -l)
+            echo "OYUNCU HAVUZU: $player_tag ($n klip)"
+            if [ "$n" -ge "$PLAYER_POOL_MIN" ]; then
+              use_general=0
+            else
+              echo "oyuncu havuzu $PLAYER_POOL_MIN klipten az — genel broll ile tamamlaniyor"
+            fi
+          else
+            echo "bu metne uyan oyuncu havuzu yok — genel broll kullaniliyor"
+          fi
+
+          if [ "$use_general" = 1 ]; then
+            broll_tags=$(printf '%s\n' "$all_tags" | grep -E '^broll[0-9]*$' || true)
+            [ -n "$broll_tags" ] || broll_tags="broll"
+            for tag in $broll_tags; do
+              mkdir -p "work/broll/$tag"
+              gh release download "$tag" -R "$MEDIA_REPO" -D "work/broll/$tag" || echo "no $tag release"
+            done
+          fi
           gh release download music -R "$MUSIC_REPO" -D work/music || echo "no music release"
           gh release download photos -R "$MEDIA_REPO" -D work/photos || echo "no photos release"
           # stadyum ugultusu / ortam sesi — opsiyonel, yoksa video sessiz zeminde kalir
