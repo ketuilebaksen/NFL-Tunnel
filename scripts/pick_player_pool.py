@@ -8,8 +8,11 @@ Release of footage for each player, tagged "oyuncu-<name>":
     oyuncu-patrick-mahomes
     oyuncu-josh-allen
 
+A video can also be about a whole team, tagged "takim-san-francisco-49ers".
+Both prefixes work the same way.
+
 This reads the list of Release tags on stdin, reads the video's script and
-title, and prints the one tag whose player the script is actually about.
+title, and prints the one tag whose subject the script is actually about.
 Prints nothing when no player pool fits — the workflow then falls back to the
 general "broll" pools.
 
@@ -24,7 +27,18 @@ import json
 import re
 import sys
 
-PREFIX = "oyuncu-"
+# Bir video tek bir oyuncuyu anlatabilir ("oyuncu-patrick-mahomes") ya da bir
+# takimi ("takim-san-francisco-49ers"). Ikisi de ayni sekilde calisiyor:
+# havuz, metinde en cok gecen isme gore seciliyor.
+PREFIXES = ("oyuncu-", "takim-")
+
+
+def _strip_prefix(tag):
+    low = tag.lower()
+    for p in PREFIXES:
+        if low.startswith(p):
+            return tag[len(p):]
+    return ""
 
 
 def script_text(path, title):
@@ -45,7 +59,7 @@ def script_text(path, title):
 
 
 def words_of(tag):
-    name = tag[len(PREFIX):]
+    name = _strip_prefix(tag)
     return [w for w in re.split(r"[-_.\s]+", name.lower()) if w]
 
 
@@ -63,7 +77,8 @@ def score(tag, text):
 
 
 def pick(tags, text):
-    cands = [t.strip() for t in tags if t.strip().lower().startswith(PREFIX)]
+    cands = [t.strip() for t in tags
+             if t.strip().lower().startswith(PREFIXES)]
     best, best_s = "", 0
     for t in cands:
         s = score(t, text)
